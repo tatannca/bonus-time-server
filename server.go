@@ -1,7 +1,13 @@
 package main
 
 import (
+	"context"
+	"log"
 	"net/http"
+
+	firebase "firebase.google.com/go/v4"
+
+	"google.golang.org/api/option"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -26,4 +32,16 @@ func main() {
 		return c.JSON(http.StatusOK, m)
 	})
 	e.Logger.Fatal(e.Start(":5000"))
+}
+
+func initializeAppWithServiceAccount() *firebase.App {
+	// [START initialize_app_service_account_golang]
+	opt := option.WithCredentialsFile("path/to/serviceAccountKey.json")
+	app, err := firebase.NewApp(context.Background(), nil, opt)
+	if err != nil {
+		log.Fatalf("error initializing app: %v\n", err)
+	}
+	// [END initialize_app_service_account_golang]
+
+	return app
 }
