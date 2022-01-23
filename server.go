@@ -4,15 +4,24 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 
 	firebase "firebase.google.com/go/v4"
 
 	"google.golang.org/api/option"
 
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
+
+func loadEnv() {
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Printf("環境変数読み込み失敗: %v", err)
+	}
+}
 
 func Auth() echo.MiddlewareFunc {
 	return auth
@@ -21,7 +30,7 @@ func Auth() echo.MiddlewareFunc {
 func auth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		// [START initialize_app_service_account_golang]
-		opt := option.WithCredentialsFile("bonus-time-app-firebase-adminsdk-hydva-b8d0f9557b.json")
+		opt := option.WithCredentialsFile(os.Getenv("CREDENTIALS"))
 		app, err := firebase.NewApp(context.Background(), nil, opt)
 		if err != nil {
 			log.Fatalf("error initializing app: %v\n", err)
@@ -54,6 +63,8 @@ func auth(next echo.HandlerFunc) echo.HandlerFunc {
 }
 
 func main() {
+	loadEnv()
+
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
