@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	firebase.google.com/go/v4 v4.7.1
+	github.com/joho/godotenv v1.4.0
 	github.com/labstack/echo/v4 v4.6.3
 	google.golang.org/api v0.40.0
 )
@@ -17,7 +18,6 @@ require (
 	github.com/golang/protobuf v1.4.3 // indirect
 	github.com/google/go-cmp v0.5.4 // indirect
 	github.com/googleapis/gax-go/v2 v2.0.5 // indirect
-	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/jstemmer/go-junit-report v0.9.1 // indirect
 	github.com/labstack/gommon v0.3.1 // indirect
 	github.com/mattn/go-colorable v0.1.11 // indirect
