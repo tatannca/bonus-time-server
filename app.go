@@ -19,6 +19,10 @@ func loadEnv() {
 	}
 }
 
+type Message struct {
+	SendMessage string `json:"message"`
+}
+
 func main() {
 	loadEnv()
 
@@ -28,10 +32,6 @@ func main() {
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"http://localhost:3000", "https://bonustime.vercel.app"},
 	}))
-
-	type Message struct {
-		SendMessage string `json:"message"`
-	}
 
 	http.HandleFunc("/public", func(w http.ResponseWriter, r *http.Request) {
 		message := &Message{
@@ -46,18 +46,7 @@ func main() {
 		w.Write(data)
 	})
 
-	http.HandleFunc("/private", func(w http.ResponseWriter, r *http.Request) {
-		message := &Message{
-			SendMessage: "Private Message!",
-		}
-		data, err := json.Marshal(message)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(data)
-	})
+	http.HandleFunc("/private", privateHandler)
 	
 	// e.GET("/public", func(c echo.Context) error {
 	// 	message := &Message{
@@ -76,6 +65,19 @@ func main() {
 	http.ListenAndServe(":5000", nil)
 	
 	// e.Logger.Fatal(e.Start(":5000"))
+}
+
+func privateHandler(w http.ResponseWriter, r *http.Request) {
+	message := &Message{
+		SendMessage: "Private Message!",
+	}
+	data, err := json.Marshal(message)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
 }
 
 // func initializeAppWithServiceAccount() *firebase.App {
