@@ -9,6 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
+	"github.com/wd30gsrc/bonus-time-server/customMiddleware"
 	_ "github.com/wd30gsrc/bonus-time-server/customMiddleware"
 )
 
@@ -33,19 +34,8 @@ func main() {
 		AllowOrigins: []string{"http://localhost:3000", "https://bonustime.vercel.app"},
 	}))
 
-	http.HandleFunc("/public", func(w http.ResponseWriter, r *http.Request) {
-		message := &Message{
-			SendMessage: "Public Message!",
-		}
-		data, err := json.Marshal(message)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(data)
-	})
-
+	finalHandler := http.HandlerFunc(publicHandler)
+	http.Handle("/public", customMiddleware.CORSMiddleware(finalHandler))
 	http.HandleFunc("/private", privateHandler)
 	
 	// e.GET("/public", func(c echo.Context) error {
@@ -65,6 +55,19 @@ func main() {
 	http.ListenAndServe(":5000", nil)
 	
 	// e.Logger.Fatal(e.Start(":5000"))
+}
+
+func publicHandler(w http.ResponseWriter, r *http.Request) {
+	message := &Message{
+		SendMessage: "Public Message!",
+	}
+	data, err := json.Marshal(message)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
 }
 
 func privateHandler(w http.ResponseWriter, r *http.Request) {

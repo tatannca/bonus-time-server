@@ -13,6 +13,19 @@ import (
 	"google.golang.org/api/option"
 )
 
+func CORSMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch host := r.Header.Get("Origin"); host {
+		case "http://localhost:3000":
+			w.Header().Set("Access-Control-Allow-Origin", host)
+		case "https://bonustime.vercel.app":
+			w.Header().Set("Access-Control-Allow-Origin", host)
+		}
+		w.Header().Set("Access-Control-Allow-Headers", "Authorization")
+		next.ServeHTTP(w, r)
+	})
+}
+
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// [START initialize_app_service_account_golang]
