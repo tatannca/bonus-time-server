@@ -6,11 +6,8 @@ import (
 	"net/http"
 
 	"github.com/joho/godotenv"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 
 	"github.com/wd30gsrc/bonus-time-server/customMiddleware"
-	_ "github.com/wd30gsrc/bonus-time-server/customMiddleware"
 )
 
 func loadEnv() {
@@ -27,34 +24,12 @@ type Message struct {
 func main() {
 	loadEnv()
 
-	e := echo.New()
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"http://localhost:3000", "https://bonustime.vercel.app"},
-	}))
-
-	finalHandler := http.HandlerFunc(publicHandler)
-	http.Handle("/public", customMiddleware.CORSMiddleware(finalHandler))
-	http.HandleFunc("/private", privateHandler)
-	
-	// e.GET("/public", func(c echo.Context) error {
-	// 	message := &Message{
-	// 		SendMessage: "Public API.",
-	// 	}
-	// 	return c.JSON(http.StatusOK, message)
-	// })
-
-	// e.GET("/private", func(c echo.Context) error {
-	// 	message := &Message{
-	// 		SendMessage: "Private API.",
-	// 	}
-	// 	return c.JSON(http.StatusOK, message)
-	// }, customMiddleware.Auth())
+	public := http.HandlerFunc(publicHandler)
+	private := http.HandlerFunc(privateHandler)
+	http.Handle("/public", customMiddleware.Cors(public))
+	http.Handle("/private", customMiddleware.Cors(customMiddleware.Auth(private)))
 
 	http.ListenAndServe(":5000", nil)
-	
-	// e.Logger.Fatal(e.Start(":5000"))
 }
 
 func publicHandler(w http.ResponseWriter, r *http.Request) {
