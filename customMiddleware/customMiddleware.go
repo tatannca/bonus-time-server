@@ -20,13 +20,18 @@ func Cors(next http.Handler) http.Handler {
 		case "https://bonustime.vercel.app":
 			w.Header().Set("Access-Control-Allow-Origin", host)
 		}
-		w.Header().Set("Access-Control-Allow-Headers", "Authorization")
+		w.Header().Set("Access-Control-Allow-Headers", "Authorization,Content-Type")
 		next.ServeHTTP(w, r)
 	})
 }
 
 func Auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "GET" {
+			w.Write([]byte("GETだけ"))
+			return
+		}
+
 		// [START initialize_app_service_account_golang]
 		opt := option.WithCredentialsFile(os.Getenv("CREDENTIALS"))
 		app, err := firebase.NewApp(context.Background(), nil, opt)
@@ -55,6 +60,7 @@ func Auth(next http.Handler) http.Handler {
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 			}
+			w.WriteHeader(http.StatusUnauthorized)
 			w.Header().Set("Content-Type", "application/json")
 			w.Write(data)
 			return
