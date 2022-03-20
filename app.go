@@ -13,6 +13,7 @@ import (
 func loadEnv() {
 	err := godotenv.Load(".env")
 	if err != nil {
+		// godotenvはローカルでしか使わないからrenderでエラー出てもとりあえず無視
 		log.Printf("環境変数読み込み失敗: %v", err)
 	}
 }
